@@ -1,4 +1,5 @@
 ﻿using DutchTreat.Data.Entities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -17,6 +18,36 @@ namespace DutchTreat.Data
             this._context = context;
             this._logger = logger;
         }
+
+        public IEnumerable<Order> GetAllOrders(bool includeAllItems = true)
+        {
+            try
+            {
+                _logger.LogInformation("Get all Orders was called");
+                if (includeAllItems)
+                    return _context.Orders.Include(o => o.Items).ThenInclude(i => i.Product).ToList();
+                else
+                    return _context.Orders.ToList();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Failed to get all the Orders: {ex}");
+                throw ex;
+            }
+        }
+        public Order GetOrderById(int id)
+        {
+            try
+            {
+                _logger.LogInformation($"Get Order by Id {id}");
+                return _context.Orders.Include(o => o.Items).ThenInclude(i => i.Product).FirstOrDefault(o => o.Id == id);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Failed to get Order by Id {id}: { ex}");
+                throw ex;
+            }
+        }
         public IEnumerable<Product> GetAllProducts()
         {
             try
@@ -26,7 +57,7 @@ namespace DutchTreat.Data
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Failed to get all the produchts: {ex}");
+                _logger.LogError($"Failed to get all the producuts: {ex}");
                 throw ex;
             }
         }
@@ -54,6 +85,11 @@ namespace DutchTreat.Data
                 throw ex;
             }
 
+        }
+
+        public void AddEntity(object model)
+        {
+            _context.Add(model);
         }
     }
 }
