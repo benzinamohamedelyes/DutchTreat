@@ -91,5 +91,36 @@ namespace DutchTreat.Data
         {
             _context.Add(model);
         }
+
+        IEnumerable<Order> IDutchRepository.GetAllOrdersByUser(string name, bool includeAllItems)
+        {
+            try
+            {
+                _logger.LogInformation("Get all Orders was called");
+                if (includeAllItems)
+                    return _context.Orders.Where(o => o.User.UserName == name).Include(o => o.Items).ThenInclude(i => i.Product).ToList();
+                else
+                    return _context.Orders.Where(o => o.User.UserName == name).ToList();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Failed to get all the Orders: {ex}");
+                throw ex;
+            }
+        }
+
+        Order IDutchRepository.GetOrderById(string name, int orderId)
+        {
+            try
+            {
+                _logger.LogInformation($"Get Order by Id {orderId}");
+                return _context.Orders.Include(o => o.Items).ThenInclude(i => i.Product).FirstOrDefault(o => o.User.UserName == name && o.Id == orderId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Failed to get Order by Id {orderId}: { ex}");
+                throw ex;
+            }
+        }
     }
 }

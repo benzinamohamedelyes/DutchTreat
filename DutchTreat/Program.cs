@@ -27,7 +27,7 @@ namespace DutchTreat
             using (IServiceScope scope = scopeFractory.CreateScope())
             {
                 DutchSeeder seeder = scope.ServiceProvider.GetService<DutchSeeder>();
-                seeder.Seed();
+                seeder.SeedAsync().Wait();
             }
         }
 
